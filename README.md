@@ -35,10 +35,10 @@
    ```bash
    ./start-cc.sh                    # Basic start (no args)
 
-   ./start-cc.sh develop_a_feature  # With custom args (e.g., develop_a_feature)
+   ./start-cc.sh --dangerously-skip-permissions  # With custom args (e.g., --dangerously-skip-permissions)
    ```
 
-This loads `.env.cc` vars and launches `claude --dangerously-skip-permissions [your-args]` (or just the base command if no args provided).
+This loads `.env.cc` vars and launches `claude [your-args]` (or just the base command if no args provided).
 
 ## Troubleshooting
 
