@@ -42,5 +42,14 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     export "$line"
 done < "$ENV_FILE"
 
+# OpenRouter app attribution headers (if configured)
+if [[ "$ANTHROPIC_BASE_URL" == *openrouter.ai* ]] && [[ -n "$OPENROUTER_APP_URL" ]] && [[ -n "$OPENROUTER_APP_NAME" ]]; then
+    ANTHROPIC_CUSTOM_HEADERS="HTTP-Referer:${OPENROUTER_APP_URL},X-Title:${OPENROUTER_APP_NAME}"
+    masked_url="${OPENROUTER_APP_URL:0:20}..."
+    masked_name="${OPENROUTER_APP_NAME:0:20}..."
+    echo "ANTHROPIC_CUSTOM_HEADERS=HTTP-Referer:[$masked_url],X-Title:[$masked_name]"
+    export ANTHROPIC_CUSTOM_HEADERS
+fi
+
 # Execute claude with any passed arguments
 exec claude "$@"
