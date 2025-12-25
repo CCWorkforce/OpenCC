@@ -33,22 +33,45 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
     key="${line%%=*}"
     value="${line#*=}"
+    # Strip outer quotes if present
+    if [[ "$value" == \"*\" ]]; then
+        value="${value#\"}"
+        value="${value%\"}"
+    elif [[ "$value" == \'*\' ]]; then
+        value="${value#\'}"
+        value="${value%\'}"
+    fi
     if is_secret "$key"; then
         masked_value=$(mask_value "$value")
         echo "$key=$masked_value"
     else
         echo "$key=$value"
     fi
-    export "$line"
+    export "$key=$value"
 done < "$ENV_FILE"
 
-# OpenRouter app attribution headers (if configured)
-if [[ "$ANTHROPIC_BASE_URL" == *openrouter.ai* ]] && [[ -n "$OPENROUTER_APP_URL" ]] && [[ -n "$OPENROUTER_APP_NAME" ]]; then
-    ANTHROPIC_CUSTOM_HEADERS="HTTP-Referer:${OPENROUTER_APP_URL},X-Title:${OPENROUTER_APP_NAME}"
-    masked_url="${OPENROUTER_APP_URL:0:20}..."
-    masked_name="${OPENROUTER_APP_NAME:0:20}..."
-    echo "ANTHROPIC_CUSTOM_HEADERS=HTTP-Referer:[$masked_url],X-Title:[$masked_name]"
-    export ANTHROPIC_CUSTOM_HEADERS
+# OpenRouter/Z.ai app attribution headers (if configured)
+if [[ "$ANTHROPIC_BASE_URL" == *://*.openrouter.ai/* ]] || [[ "$ANTHROPIC_BASE_URL" == *://*.openrouter.ai ]] || [[ "$ANTHROPIC_BASE_URL" == *://*.z.ai/* ]]; then
+    if [[ -n "$OPENROUTER_APP_URL" ]] && [[ -n "$OPENROUTER_APP_NAME" ]]; then
+        ANTHROPIC_CUSTOM_HEADERS="HTTP-Referer:${OPENROUTER_APP_URL},X-Title:${OPENROUTER_APP_NAME}"
+        masked_url="${OPENROUTER_APP_URL:0:20}..."
+        masked_name="${OPENROUTER_APP_NAME:0:20}..."
+        echo "ANTHROPIC_CUSTOM_HEADERS=HTTP-Referer:[$masked_url],X-Title:[$masked_name]"
+        export ANTHROPIC_CUSTOM_HEADERS
+    fi
+fi
+
+# Check if claude command exists
+if ! command -v claude &>/dev/null; then
+    echo "Error: 'claude' command not found."
+    echo "Install from https://claude.ai/code"
+    exit 1
+fi
+
+# Validate required environment variable
+if [[ -z "$ANTHROPIC_AUTH_TOKEN" ]]; then
+    echo "Error: ANTHROPIC_AUTH_TOKEN not set in $ENV_FILE"
+    exit 1
 fi
 
 # Execute claude with any passed arguments
