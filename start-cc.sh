@@ -1,12 +1,45 @@
 #!/bin/zsh
 
+# Exit on errors, undefined variables, and pipe failures
+set -euo pipefail
+
 # Load environment variables from .env.cc
 SCRIPT_DIR="${0:A:h}"
 ENV_FILE="${SCRIPT_DIR}/.env.cc"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-    echo "Error: .env.cc not found at $ENV_FILE"
+    echo "Error: .env.cc not found at $ENV_FILE" >&2
+    echo "" >&2
+    echo "To get started, copy an example file:" >&2
+    echo "  cp .env.cc.example .env.cc   # or .env.cc.zai.example" >&2
+    echo "Then edit .env.cc with your API keys." >&2
     exit 1
+fi
+
+# Handle script flags (--help, --debug)
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+    cat <<'EOF'
+OpenCC - Claude Code wrapper for OpenRouter/Z.ai
+
+Usage:
+    ./start-cc.sh [claude options]
+    ./start-cc.sh --debug [claude options]
+    ./start-cc.sh --help
+
+Environment:
+    Loads configuration from .env.cc in the script directory.
+
+Examples:
+    ./start-cc.sh
+    ./start-cc.sh --dangerously-skip-permissions
+    ./start-cc.sh --debug --help
+EOF
+    exit 0
+fi
+
+if [[ "${1:-}" == "--debug" ]]; then
+    shift
+    set -x  # Enable zsh tracing
 fi
 
 is_secret() {
@@ -20,7 +53,7 @@ is_secret() {
 mask_value() {
     local val="$1"
     local len="${#val}"
-    if [[ $len -le 8 ]]; then
+    if [[ $len -lt 8 ]]; then
         echo "***"
     else
         echo "${val:0:4}***${val:(-4)}"
@@ -33,6 +66,13 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
     key="${line%%=*}"
     value="${line#*=}"
+
+    # Validate key name (must start with letter/underscore, contain only alphanumeric/underscore)
+    if [[ -z "$key" ]] || [[ "$key" =~ [^A-Za-z0-9_] ]] || [[ "$key" =~ ^[0-9] ]]; then
+        echo "Warning: Skipping invalid environment variable name: '$key'" >&2
+        continue
+    fi
+
     # Strip outer quotes if present
     if [[ "$value" == \"*\" ]]; then
         value="${value#\"}"
@@ -51,8 +91,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 done < "$ENV_FILE"
 
 # OpenRouter/Z.ai app attribution headers (if configured)
-if [[ "$ANTHROPIC_BASE_URL" == *://*.openrouter.ai/* ]] || [[ "$ANTHROPIC_BASE_URL" == *://*.openrouter.ai ]] || [[ "$ANTHROPIC_BASE_URL" == *://*.z.ai/* ]]; then
-    if [[ -n "$OPENROUTER_APP_URL" ]] && [[ -n "$OPENROUTER_APP_NAME" ]]; then
+# Pattern matches with or without subdomain, with or without trailing path
+if [[ "$ANTHROPIC_BASE_URL" == *://(*.)openrouter.ai(/*) || "$ANTHROPIC_BASE_URL" == *://(*.)z.ai(/*) ]]; then
+    if [[ -n "${OPENROUTER_APP_URL:-}" ]] && [[ -n "${OPENROUTER_APP_NAME:-}" ]]; then
         ANTHROPIC_CUSTOM_HEADERS="HTTP-Referer:${OPENROUTER_APP_URL},X-Title:${OPENROUTER_APP_NAME}"
         masked_url="${OPENROUTER_APP_URL:0:20}..."
         masked_name="${OPENROUTER_APP_NAME:0:20}..."
@@ -61,16 +102,21 @@ if [[ "$ANTHROPIC_BASE_URL" == *://*.openrouter.ai/* ]] || [[ "$ANTHROPIC_BASE_U
     fi
 fi
 
-# Check if claude command exists
-if ! command -v claude &>/dev/null; then
-    echo "Error: 'claude' command not found."
-    echo "Install from https://claude.ai/code"
+# Validate required environment variable (checked first since env file is this script's primary purpose)
+if [[ -z "$ANTHROPIC_AUTH_TOKEN" ]]; then
+    # Distinguish between "not set" and "empty" using ${(t)var} type expansion
+    if [[ -z "${(t)ANTHROPIC_AUTH_TOKEN}" ]]; then
+        echo "Error: ANTHROPIC_AUTH_TOKEN is not defined in $ENV_FILE" >&2
+    else
+        echo "Error: ANTHROPIC_AUTH_TOKEN is empty in $ENV_FILE" >&2
+    fi
     exit 1
 fi
 
-# Validate required environment variable
-if [[ -z "$ANTHROPIC_AUTH_TOKEN" ]]; then
-    echo "Error: ANTHROPIC_AUTH_TOKEN not set in $ENV_FILE"
+# Check if claude command exists
+if ! command -v claude &>/dev/null; then
+    echo "Error: 'claude' command not found." >&2
+    echo "Install from https://claude.ai/code" >&2
     exit 1
 fi
 
