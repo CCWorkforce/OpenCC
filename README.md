@@ -10,8 +10,7 @@
 
 2. Edit `.env.cc` (using your preferred editor, e.g., `nano .env.cc` or VS Code):
    - Set `ANTHROPIC_AUTH_TOKEN=your_openrouter_token_here` (get a free token from [OpenRouter](https://openrouter.ai)).
-   - Leave `ANTHROPIC_API_KEY=""` **exactly as-is** (must be empty for OpenRouter).
-   - `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
+    - `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
    - Optionally customize model defaults and token limits (e.g., `ANTHROPIC_DEFAULT_OPUS_MODEL`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=65536`, `MAX_MCP_OUTPUT_TOKENS=65536`, `MAX_THINKING_TOKENS=32768`).
 
 3. **Secure the file**: Add `.env.cc` to `.gitignore` to avoid committing secrets:
