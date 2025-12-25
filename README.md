@@ -45,12 +45,14 @@ This loads `.env.cc` vars and launches `claude [your-args]` (or just the base co
 To use OpenCC in **any Git repository** (e.g., your other projects):
 
 1. Copy these files to your project's root directory:
+
    ```bash
    cp start-cc.sh /path/to/your/project/
    cp .env.cc /path/to/your/project/
    ```
 
 2. **Secure `.env.cc`** (add to `.gitignore` if not already):
+
    ```bash
    cd /path/to/your/project/
    echo \".env.cc\" >> .gitignore
@@ -59,6 +61,7 @@ To use OpenCC in **any Git repository** (e.g., your other projects):
    ```
 
 3. Make the script executable and run:
+
    ```bash
    chmod +x start-cc.sh
    ./start-cc.sh                    # Basic start (no args)
