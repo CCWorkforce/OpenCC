@@ -43,6 +43,15 @@ if [[ "${1:-}" == "--debug" ]]; then
 fi
 
 is_secret() {
+    local key="$1"
+
+    # Variables matching secret patterns but explicitly excluded from masking
+    case "$key" in
+        API_TIMEOUT_MS|CLAUDE_CODE_MAX_OUTPUT_TOKENS|MAX_MCP_OUTPUT_TOKENS|MAX_THINKING_TOKENS)
+            return 1
+            ;;
+    esac
+
     local key_lower="${1:l}"
     if [[ $key_lower == *api* || $key_lower == *key* || $key_lower == *secret* || $key_lower == *token* || $key_lower == *pass* || $key_lower == *pwd* ]]; then
         return 0

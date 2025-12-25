@@ -2,16 +2,37 @@
 
 ## 1. Set Up Environment Configuration
 
-1. Copy the example file to create your config:\
+1. Copy the example file to create your config:
 
    ```bash
-   cp .env.cc.example .env.cc
+   cp .env.cc.example .env.cc        # For OpenRouter
+   # or
+   cp .env.cc.zai.example .env.cc    # For Z.ai
    ```
 
-2. Edit `.env.cc` (using your preferred editor, e.g., `nano .env.cc` or VS Code):
+2. Edit `.env.cc` (using your preferred editor, e.g., `nano .env.cc` or VS Code).
+
+### OpenRouter Configuration
    - Set `ANTHROPIC_AUTH_TOKEN=your_openrouter_token_here` (get a free token from [OpenRouter](https://openrouter.ai)).
-    - `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
-   - Optionally customize model defaults and token limits (e.g., `ANTHROPIC_DEFAULT_OPUS_MODEL`, `CLAUDE_CODE_MAX_OUTPUT_TOKENS=65536`, `MAX_MCP_OUTPUT_TOKENS=65536`, `MAX_THINKING_TOKENS=32768`), and OpenRouter app attribution for leaderboards (`OPENROUTER_APP_URL=https://github.com/cc/OpenCC`, `OPENROUTER_APP_NAME=OpenCC`).
+   - `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
+
+### Z.ai Configuration
+   - Set `ANTHROPIC_AUTH_TOKEN=your_zai_token_here` (get access from [Z.ai](https://z.ai)).
+   - `ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic` is pre-configured.
+   - Optionally set `API_TIMEOUT_MS=3000000` for long-running requests.
+
+### Optional Configuration
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Model for Opus tier tasks | Provider-dependent |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Model for Sonnet tier tasks | Provider-dependent |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Model for Haiku tier tasks | Provider-dependent |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | Max tokens for Claude output | 65536 |
+| `MAX_MCP_OUTPUT_TOKENS` | Max tokens for MCP tools | 65536 |
+| `MAX_THINKING_TOKENS` | Max tokens for thinking mode | 32768 |
+| `OPENROUTER_APP_URL` | App URL for leaderboards | - |
+| `OPENROUTER_APP_NAME` | App name for leaderboards | - |
 
 3. **Secure the file**: Add `.env.cc` to `.gitignore` to avoid committing secrets:
 
@@ -29,13 +50,26 @@
    chmod +x start-cc.sh
    ```
 
-2. Run the script (optionally with args):
+2. Run the script:
 
    ```bash
-   ./start-cc.sh                    # Basic start (no args)
-
-   ./start-cc.sh --dangerously-skip-permissions  # With custom args (e.g., --dangerously-skip-permissions)
+   ./start-cc.sh                           # Basic start (no args)
+   ./start-cc.sh --dangerously-skip-permissions   # With custom args
+   ./start-cc.sh --help                    # Show usage information
+   ./start-cc.sh --debug                   # Enable debug tracing
+   ./start-cc.sh --debug --help            # Debug Claude directly
    ```
+
+### Command-Line Flags
+
+| Flag | Description |
+|------|-------------|
+| `--help`, `-h` | Show usage information and exit |
+| `--debug` | Enable zsh tracing (`set -x`) for debugging |
+
+### Secret Masking
+
+OpenCC automatically masks sensitive values in output. Variables containing `api`, `key`, `secret`, `token`, `pass`, or `pwd` in their name are displayed as `prefix***suffix` (first/last 4 characters visible). Non-sensitive variables are shown fully.
 
 This loads `.env.cc` vars and launches `claude [your-args]` (or just the base command if no args provided).
 
@@ -72,6 +106,20 @@ This loads `.env.cc` vars **locally** in your project and launches `claude` with
 
 ## Troubleshooting
 
-- **Error: .env.cc not found**: Ensure Step 1 completed.
-- **Auth errors**: Verify your OpenRouter token has credits.
-- **Model issues**: Check OpenRouter dashboard for model availability.
+| Error | Solution |
+|-------|----------|
+| `.env.cc not found` | Run `cp .env.cc.example .env.cc` or `cp .env.cc.zai.example .env.cc` |
+| `ANTHROPIC_AUTH_TOKEN is not defined` | Add `ANTHROPIC_AUTH_TOKEN=your_token` to `.env.cc` |
+| `ANTHROPIC_AUTH_TOKEN is empty` | Ensure the token value is not empty in `.env.cc` |
+| `'claude' command not found` | Install Claude Code from https://claude.ai/code |
+| Auth errors | Verify your API provider token has credits/usage available |
+| Model issues | Check your provider's dashboard for model availability |
+| Variable name warnings | Ensure variable names contain only letters, numbers, and underscores |
+
+### Debug Mode
+
+Use `--debug` to enable verbose zsh tracing. This helps diagnose issues with environment variable parsing or script execution:
+
+```bash
+./start-cc.sh --debug
+```
