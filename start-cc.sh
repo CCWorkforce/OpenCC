@@ -17,5 +17,5 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     export "$line"
 done < "$ENV_FILE"
 
-# Execute claude with skip permissions flag
-exec claude --dangerously-skip-permissions "$@"
+# Execute claude with any passed arguments
+exec claude "$@"
