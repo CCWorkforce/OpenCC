@@ -22,7 +22,7 @@
    git commit -m "Ignore .env.cc secrets"
    ```
 
-## 2. Start OpenCC
+## 2. Start OpenCC (Local Testing)
 
 1. Ensure the script is executable:
 
@@ -39,6 +39,34 @@
    ```
 
 This loads `.env.cc` vars and launches `claude [your-args]` (or just the base command if no args provided).
+
+## 3. Deploy to Project Root (Other Repositories)
+
+To use OpenCC in **any Git repository** (e.g., your other projects):
+
+1. Copy these files to your project's root directory:
+   ```bash
+   cp start-cc.sh /path/to/your/project/
+   cp .env.cc /path/to/your/project/
+   ```
+
+2. **Secure `.env.cc`** (add to `.gitignore` if not already):
+   ```bash
+   cd /path/to/your/project/
+   echo \".env.cc\" >> .gitignore
+   git add .gitignore
+   git commit -m \"Ignore OpenCC .env.cc secrets\"
+   ```
+
+3. Make the script executable and run:
+   ```bash
+   chmod +x start-cc.sh
+   ./start-cc.sh                    # Basic start (no args)
+   # or
+   ./start-cc.sh --dangerously-skip-permissions  # With custom args
+   ```
+
+This loads `.env.cc` vars **locally** in your project and launches `claude` with passed args.
 
 ## Troubleshooting
 
