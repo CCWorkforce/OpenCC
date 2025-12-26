@@ -13,11 +13,13 @@
 2. Edit `.env.cc` (using your preferred editor, e.g., `nano .env.cc` or VS Code).
 
 ### OpenRouter Configuration
-   - Set `ANTHROPIC_AUTH_TOKEN=your_openrouter_token_here` (get a free token from [OpenRouter](https://openrouter.ai)).
-   - `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
+
+- Set `CLAUDE_CODE_OAUTH_TOKEN=your_openrouter_token_here` (get a free token from [OpenRouter](https://openrouter.ai)).
+- `ANTHROPIC_BASE_URL=https://openrouter.ai/api` is pre-configured.
 
 ### Z.ai Configuration
-   - Set `ANTHROPIC_AUTH_TOKEN=your_zai_token_here` (get access from [Z.ai](https://z.ai)).
+
+- Set `CLAUDE_CODE_OAUTH_TOKEN=your_zai_token_here` (get access from [Z.ai](https://z.ai)).
    - `ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic` is pre-configured.
    - Optionally set `API_TIMEOUT_MS=3000000` for long-running requests.
 
@@ -109,8 +111,8 @@ This loads `.env.cc` vars **locally** in your project and launches `claude` with
 | Error | Solution |
 |-------|----------|
 | `.env.cc not found` | Run `cp .env.cc.example .env.cc` or `cp .env.cc.zai.example .env.cc` |
-| `ANTHROPIC_AUTH_TOKEN is not defined` | Add `ANTHROPIC_AUTH_TOKEN=your_token` to `.env.cc` |
-| `ANTHROPIC_AUTH_TOKEN is empty` | Ensure the token value is not empty in `.env.cc` |
+| `CLAUDE_CODE_OAUTH_TOKEN is not defined` | Add `CLAUDE_CODE_OAUTH_TOKEN=your_token` to `.env.cc` |
+| `CLAUDE_CODE_OAUTH_TOKEN is empty` | Ensure the token value is not empty in `.env.cc` |
 | `'claude' command not found` | Install Claude Code from https://claude.ai/code |
 | Auth errors | Verify your API provider token has credits/usage available |
 | Model issues | Check your provider's dashboard for model availability |
