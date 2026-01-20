@@ -112,12 +112,12 @@ if [[ "$ANTHROPIC_BASE_URL" == *://(*.)openrouter.ai(/*) || "$ANTHROPIC_BASE_URL
 fi
 
 # Validate required environment variable (checked first since env file is this script's primary purpose)
-if [[ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
+if [[ -z "$ANTHROPIC_AUTH_TOKEN" ]]; then
     # Distinguish between "not set" and "empty" using ${(t)var} type expansion
-    if [[ -z "${(t)CLAUDE_CODE_OAUTH_TOKEN}" ]]; then
-        echo "Error: CLAUDE_CODE_OAUTH_TOKEN is not defined in $ENV_FILE" >&2
+    if [[ -z "${(t)ANTHROPIC_AUTH_TOKEN}" ]]; then
+        echo "Error: ANTHROPIC_AUTH_TOKEN is not defined in $ENV_FILE" >&2
     else
-        echo "Error: CLAUDE_CODE_OAUTH_TOKEN is empty in $ENV_FILE" >&2
+        echo "Error: ANTHROPIC_AUTH_TOKEN is empty in $ENV_FILE" >&2
     fi
     exit 1
 fi

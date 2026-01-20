@@ -19,7 +19,7 @@ Key files:
 ```bash
 chmod +x start-cc.sh
 cp .env.cc.example .env.cc  # or .env.cc.zai.example for Z.ai
-# Edit CLAUDE_CODE_OAUTH_TOKEN with your API key
+# Edit ANTHROPIC_AUTH_TOKEN with your API key
 echo ".env.cc" >> .gitignore
 ```
 
@@ -44,7 +44,7 @@ Single-script design (`start-cc.sh`):
 4. **Secret masking**: `is_secret()` identifies sensitive variables by name patterns (api, key, secret, token, pass, pwd). `mask_value()` displays first/last 4 chars for values >= 8 chars.
 5. **Export**: Exports all valid variables to environment.
 6. **App attribution**: For OpenRouter/Z.ai, sets `ANTHROPIC_CUSTOM_HEADERS` if `OPENROUTER_APP_URL` and `OPENROUTER_APP_NAME` are configured.
-7. **Validation**: Ensures `CLAUDE_CODE_OAUTH_TOKEN` is defined and non-empty; checks `claude` command exists.
+7. **Validation**: Ensures `ANTHROPIC_AUTH_TOKEN` is defined and non-empty; checks `claude` command exists.
 8. **Execution**: Uses `exec claude "$@"` for seamless delegation.
 
 Purpose: Deploy to any repo root for local Claude Code setup with alternative APIs (zero dependencies).
@@ -53,7 +53,7 @@ Purpose: Deploy to any repo root for local Claude Code setup with alternative AP
 
 ### Required
 
-- `CLAUDE_CODE_OAUTH_TOKEN`: API provider authentication token.
+- `ANTHROPIC_AUTH_TOKEN`: API provider authentication token.
 - `ANTHROPIC_BASE_URL`: API endpoint (e.g., `https://openrouter.ai/api` or `https://api.z.ai/api/anthropic`).
 
 ### Model Selection (Optional)
